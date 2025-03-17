@@ -16,6 +16,7 @@ export const createUserController =  async(req,res)=>{
         const {email,password} = req.body;
         const user = await createUser({email,password});
         const token = await user.generateToken();
+        delete user._doc.password;
         return res.status(201).json({user,token});
 
     }catch(err){
@@ -43,6 +44,7 @@ export const userLoginController = async (req,res)=>{
             return res.status(401).json({error:"Invalid credentials"});
         }
         const token = await user.generateToken();
+        delete user._doc.password;
         return res.status(200).json({user,token});
     }catch(err){
         console.log(err);
