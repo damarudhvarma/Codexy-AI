@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { addUserToProjectController, createProjectController, getAllProjectController } from '../controllers/projectController.js';
+import { addUserToProjectController, createProjectController, getAllProjectController, getProjectController } from '../controllers/projectController.js';
 import { body } from 'express-validator';
 import { authUser } from '../middlewares/authMiddleware.js';
 
@@ -20,7 +20,7 @@ const projectRouter = Router();
  );
 
 
- 
+ projectRouter.get('/get-project/:projectId', authUser, getProjectController);
 
 
 
