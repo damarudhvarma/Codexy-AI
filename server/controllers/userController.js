@@ -1,5 +1,5 @@
 import { validationResult } from "express-validator"
-import { createUser } from "../services/userServices.js";
+import { createUser, getAllUser } from "../services/userServices.js";
 import User from "../models/userModel.js";
 import redisClient from "../services/redisService.js";
 
@@ -76,3 +76,17 @@ export const logoutController = async(req,res)=>{
 
 }
 
+
+export const getAllUsersController = async(req,res)=>{
+    try {
+        const loggedInUser= await User.findOne({email:req.user.email});
+        const userId = loggedInUser._id;
+
+        const getAllUsers= await getAllUser({userId});
+        return res.status(200).json({users:getAllUsers});
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({error:"Something went wrong"});
+        
+    }
+}

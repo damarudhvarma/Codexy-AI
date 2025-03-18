@@ -15,3 +15,11 @@ const user = await userModel.create({
 return user;
 
 }
+
+
+export const getAllUser= async({userId})=>{
+    const users = await userModel.find({
+        _id:{$ne:userId}
+    });
+    return users;
+}
