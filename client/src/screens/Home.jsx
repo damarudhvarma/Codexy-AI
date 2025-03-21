@@ -1,11 +1,13 @@
+import { useNavigate } from 'react-router-dom';
 import axiosinstance from '../config/axios';
 import { UserContext } from '../context/UserContext'
-import React, { useContext,useState } from 'react'
+import React, { useState,useEffect } from 'react'
 
 const Home = () => {
-  const {user}= useContext(UserContext);
-  const [isModalOpen, setisModalOpen] = useState('false');
-  const [projectName, setprojectName] = useState('')
+  const [isModalOpen, setisModalOpen] = useState(false);
+  const [projectName, setprojectName] = useState('');
+  const [projects, setProjects] = useState([]);
+  const navigate= useNavigate();
 
   async function createProject  (e){
     e.preventDefault();
@@ -19,18 +21,44 @@ const Home = () => {
 
   }
 
+  useEffect(() => {
+    
+    axiosinstance.get('/projects/all').then((res) => {
+      setProjects(res.data.projects)
+    }).catch((err) => {
+      console.log(err)
+    } )
+  
+   
+  }, [])
+ 
   return (
     <>
     <main className='p-4'>
-      <div className='projects'>
+      <div className='projects flex flex-wrap gap-3'>
         <button 
           className='project border p-4 border-slate-500 rounded-md font-semibold'
           onClick={() => setisModalOpen(true)}
         >
          New Project<i className='ri-link ml-2'></i> 
         </button>
+        {
+          projects.map((project) => (
+            <div key={project._id} className='project cursor-pointer border p-4  border-slate-500 flex flex-col gap-2 rounded-md font-semibold min-w-52 hover:bg-slate-100'
+            onClick={() => navigate(`/project`,{
+              state: { project }
+            })}
+            >
+             <h2 className='font-semibold'>{project.name}</h2>
+             <div className='flex gap-2'>
+             <p className=''> <small><i className='ri-user-line'></i> Collaborators :</small></p>
+              {project.users.length}
+             </div>
+            
+            </div>
+          ))
+        }
 
-        <div></div>
       </div>
     </main>
 
