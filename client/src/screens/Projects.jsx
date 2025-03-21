@@ -1,3 +1,4 @@
+import { initializeSocket } from "../config/socket.js";
 import axiosinstance from "../config/axios";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -18,6 +19,7 @@ const Projects = () => {
 
 
   useEffect(() => {
+    initializeSocket();
       
     axiosinstance.get(`/projects/get-project/${project._id}`).then((res)=>{
       setproject(res.data.project)
