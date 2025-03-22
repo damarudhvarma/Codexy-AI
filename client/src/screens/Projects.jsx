@@ -1,7 +1,8 @@
-import { initializeSocket } from "../config/socket.js";
+import { initializeSocket, receiveMessage, sendMessage } from "../config/socket.js";
 import axiosinstance from "../config/axios";
-import React, { useEffect, useState } from "react";
+import React, { createRef, useContext, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { UserContext } from "../context/UserContext.jsx";
 
 const Projects = () => {
   const location = useLocation();
@@ -14,18 +15,26 @@ const Projects = () => {
   const [tempSelectedUsers, setTempSelectedUsers] = useState([]);
   const [users, setusers] = useState([]);
   const [usersMap, setUsersMap] = useState({});
+  const [Message, setMessage] = useState('')
 
   const [project, setproject] = useState(location.state.project);
+  const MessageBox= useRef();
 
+  const {user} = useContext(UserContext);
 
   useEffect(() => {
-    initializeSocket();
-      
+    initializeSocket(project._id);
+
+    receiveMessage('project-message', (data) => {
+      console.log(data);
+      apppendIncomingMessage(data);
+    });
+
+    
     axiosinstance.get(`/projects/get-project/${project._id}`).then((res)=>{
       setproject(res.data.project)
       
     })
-
 
     axiosinstance
       .get("/users/all")
@@ -46,6 +55,16 @@ const Projects = () => {
         console.log(err);
       });
   }, []);
+
+
+  const handleSendMessage = () => {
+    sendMessage("project-message", { message: Message ,
+      sender: user,
+    });
+    apppendOutgoingMessage({message:Message});
+
+    setMessage("");
+  };
 
   const handleUserSelect = (user) => {
     setTempSelectedUsers((prevSelected) => {
@@ -95,6 +114,28 @@ const Projects = () => {
     }
   };
 
+  const apppendIncomingMessage = (message) => {
+   
+   
+    const messageEl= document.createElement("div");
+    messageEl.classList.add("incomming","message","max-w-56","flex","flex-col","p-2","bg-slate-50","w-fit","rounded-md");
+    messageEl.innerHTML=`
+    <small class="opacity-65 text-xs">${message.sender.email}</small>
+    <p class="text-sm">${message.message}</p>
+    `
+    MessageBox.current.appendChild(messageEl);
+  }
+
+  const apppendOutgoingMessage = (message) => {
+    const messageEl= document.createElement("div");
+    messageEl.classList.add("outcomming","ml-auto","max-w-56","flex","flex-col","p-2","bg-slate-50","w-fit","rounded-md");
+    messageEl.innerHTML=`
+    <small class="opacity-65 text-xs">${user.email}</small>
+    <p class="text-sm">${message.message}</p>
+    `
+    MessageBox.current.appendChild(messageEl);
+  }
+
   
   return (
     <>
@@ -119,33 +160,24 @@ const Projects = () => {
           {/* conversations area */}
           <div className="flex-grow flex flex-col">
             {/* message box  */}
-            <div className="flex-grow flex flex-col gap-2 p-1">
-              <div
-                className="incomming message max-w-56 flex flex-col
-                        p-2 bg-slate-50 w-fit rounded-md "
-              >
-                <small className="opacity-65 text-xs">exp@email.com</small>
-                <p className="text-sm">
-                  Lorem ipsum, dolor sit amet con dcnkdnwvirwrnfvn.
-                </p>
-              </div>
-              <div
-                className="outcomming max-w-56 message ml-auto flex flex-col
-                        p-2 bg-slate-50 w-fit rounded-md "
-              >
-                <small className="opacity-65 text-xs">exp@email.com</small>
-                <p className="text-sm">Lorem ipsum, dolor sit amet con.</p>
-              </div>
+            <div
+            ref = {MessageBox}
+            className="message-box flex-grow flex flex-col gap-2 p-1">
+              
             </div>
 
             {/* input area */}
             <div className="w-full flex">
               <input
                 type="text"
+                onChange={(e) => setMessage(e.target.value)}
+                value={Message}
                 placeholder="enter your message"
                 className="p-2 px-2 border-none outline-none flex-grow"
               />
-              <button className=" px-5 bg-slate-900 text-white">
+              <button
+              onClick={handleSendMessage}
+              className=" px-5 bg-slate-900 text-white">
                 <i className="ri-send-plane-fill"></i>
               </button>
             </div>

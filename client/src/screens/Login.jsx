@@ -37,12 +37,13 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axiosinstance.post(`/users/login`, loginData);
-      console.log(res);
+      
       if(res.status === 200){
         setLoginData({email:"",password:""});
         setUser(res.data.user);
         localStorage.setItem("Token",JSON.stringify(res.data.token));
         navigate("/");
+        
       }
     } catch (error) {
       alert(error.response?.data?.message || "Login failed. Please try again.");

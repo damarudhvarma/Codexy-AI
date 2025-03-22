@@ -2,11 +2,14 @@ import { io } from 'socket.io-client';
 
 let socketInstance;
 
-export const initializeSocket = () => {
+export const initializeSocket = (projectId) => {
   if (!socketInstance) {
     socketInstance = io(import.meta.env.VITE_SERVER_URL, {
       auth: {
         token: JSON.parse(localStorage.getItem('Token')),
+      },
+      query: {
+        projectId,
       },
     
     });
@@ -26,3 +29,15 @@ export const initializeSocket = () => {
 
   return socketInstance;
 };
+
+
+
+export const receiveMessage=(eventName,cb)=>{
+    socketInstance.on(eventName,cb);
+}
+
+export const sendMessage=(eventName,data)=>{
+    socketInstance.emit(eventName,data);
+}
+
+

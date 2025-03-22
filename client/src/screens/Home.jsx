@@ -1,13 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import axiosinstance from '../config/axios';
 import { UserContext } from '../context/UserContext'
-import React, { useState,useEffect } from 'react'
+import React, { useState,useEffect, useContext,  } from 'react'
 
 const Home = () => {
   const [isModalOpen, setisModalOpen] = useState(false);
   const [projectName, setprojectName] = useState('');
   const [projects, setProjects] = useState([]);
   const navigate= useNavigate();
+  const {user}= useContext(UserContext);
+  console.log(user)
 
   async function createProject  (e){
     e.preventDefault();
